@@ -17,8 +17,6 @@ export function CheckoutPage({ cart }) {
     });
 
     axios.get('/api/payment-summary').then((response) => {
-      console.log(response);
-
       setPaymentSummary(response.data);
     });
   }, []);
