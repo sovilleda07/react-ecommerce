@@ -20,7 +20,7 @@ export function DeliverOptions({ deliveryOptions, cartItem, loadCart }) {
             deliveryOptionId: deliveryOption.id
           });
 
-          loadCart();
+          await loadCart();
         }
 
         return (
