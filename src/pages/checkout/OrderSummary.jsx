@@ -1,4 +1,4 @@
-import { DeliverOptions } from "./DeliveryOptions";
+import { DeliveryOptions } from "./DeliveryOptions";
 import { DeliveryDate } from "./DeliveryDate";
 import { CartItemDetails } from "./CartItemDetails"
 
@@ -7,13 +7,13 @@ export function OrderSummary({ cart, deliveryOptions, loadCart }) {
     <div className="order-summary">
       {deliveryOptions.length > 0 && cart.map((cartItem) => {
         return (
-          <div key={cartItem.id} className="cart-item-container">
+          <div key={cartItem.id} className="cart-item-container" data-testid="cart-item-container">
             <DeliveryDate cartItem={cartItem} deliveryOptions={deliveryOptions} />
 
             <div className="cart-item-details-grid">
               <CartItemDetails cartItem={cartItem} loadCart={loadCart} />
 
-              <DeliverOptions cartItem={cartItem} deliveryOptions={deliveryOptions} loadCart={loadCart} />
+              <DeliveryOptions cartItem={cartItem} deliveryOptions={deliveryOptions} loadCart={loadCart} />
             </div>
           </div>
         )

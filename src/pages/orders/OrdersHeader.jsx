@@ -7,17 +7,19 @@ export function OrdersHeader({ order }) {
       <div className="order-header-left-section">
         <div className="order-date">
           <div className="order-header-label">Order Placed:</div>
-          <div>{dayjs(order.orderTimeMS).format('MMMM D')}</div>
+          <div data-testid="order-date">
+            {dayjs(order.orderTimeMS).format('MMMM D')}
+          </div>
         </div>
         <div className="order-total">
           <div className="order-header-label">Total:</div>
-          <div>{formatMoney(order.totalCostCents)}</div>
+          <div data-testid="order-total">{formatMoney(order.totalCostCents)}</div>
         </div>
       </div>
 
       <div className="order-header-right-section">
         <div className="order-header-label">Order ID:</div>
-        <div>{order.id}</div>
+        <div data-testid="order-id">{order.id}</div>
       </div>
     </div>
   )
