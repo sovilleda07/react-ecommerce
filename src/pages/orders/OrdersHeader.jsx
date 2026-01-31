@@ -8,7 +8,7 @@ export function OrdersHeader({ order }) {
         <div className="order-date">
           <div className="order-header-label">Order Placed:</div>
           <div data-testid="order-date">
-            {dayjs(order.orderTimeMS).format('MMMM D')}
+            {dayjs(order.orderTimeMs).format('MMMM D')}
           </div>
         </div>
         <div className="order-total">
