@@ -1,7 +1,7 @@
-import axios from 'axios';
 import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router';
 import { Header } from '../components/Header';
+import { orderService } from '../services/orderService';
 import './TrackingPage.css';
 import dayjs from 'dayjs';
 
@@ -12,9 +12,9 @@ export function TrackingPage({ cart }) {
 
   useEffect(() => {
     const fetchTrackingData = async () => {
-      const response = await axios.get(`/api/orders/${orderId}?expand=products`);
+      const orderData = await orderService.getOrder(orderId);
 
-      setOrder(response.data);
+      setOrder(orderData);
     };
 
     fetchTrackingData();
@@ -33,6 +33,8 @@ export function TrackingPage({ cart }) {
 
   if (deliveryPercent > 100) {
     deliveryPercent = 100;
+  } else if (deliveryPercent < 5) {
+    deliveryPercent = 5;
   }
 
   const isPreparing = deliveryPercent < 33;
@@ -66,7 +68,7 @@ export function TrackingPage({ cart }) {
 
           <img className="product-image" src={orderProduct.product.image} />
 
-          <div className="progress-labels-container">
+          <div className="progress-labels-container" data-testid="progress-labels-container">
             <div className={`progress-label ${isPreparing && 'current-status'}`}>
               Preparing
             </div>
@@ -79,7 +81,7 @@ export function TrackingPage({ cart }) {
           </div>
 
           <div className="progress-bar-container">
-            <div className="progress-bar" style={{ width: `${deliveryPercent}%` }}></div>
+            <div className="progress-bar" style={{ width: `${deliveryPercent}%` }} data-testid="progress-bar"></div>
           </div>
         </div>
       </div>
