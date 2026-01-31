@@ -1,12 +1,14 @@
-import axios from "axios"
 import { useNavigate } from "react-router";
 import { formatMoney } from "../../utils/money"
+import { orderService } from "../../services/orderService";
+import { cartService } from "../../services/cartService";
 
-export function PaymentSummary({ paymentSummary, loadCart }) {
+export function PaymentSummary({ paymentSummary, loadCart, cart }) {
   const navigate = useNavigate();
 
   const createOrder = async () => {
-    await axios.post('/api/orders');
+    await orderService.placeOrder(cart);
+    await cartService.clearCart();
     await loadCart();
 
     navigate('/orders');

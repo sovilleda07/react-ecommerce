@@ -12,12 +12,12 @@ const saveOrdersToStorage = (orders) => {
 };
 
 export const orderService = {
-  getOrders: async () => {
+  async getOrders() {
     await sleep(200);
     return getOrdersFromStorage();
   },
 
-  getOrder: async (orderId) => {
+  async getOrder(orderId) {
     await sleep(200);
 
     const orders = getOrdersFromStorage();
@@ -26,19 +26,33 @@ export const orderService = {
     return order;
   },
 
-  placeOrder: async (cart, deliveryOptionId = '1') => {
+  async placeOrder(cart) {
     await sleep(500);
 
     const orders = getOrdersFromStorage();
+    const deliveryOptions = await this.getDeliveryOptions();
+
+    const productCostCents = cart.reduce((acc, item) => acc + (item.product.priceCents * item.quantity), 0);
+    const shippingCostCents = cart.reduce((acc, item) => {
+      const option = deliveryOptions.find(o => o.id === item.deliveryOptionId);
+      return acc + (option ? option.priceCents : 0);
+    }, 0);
+    const totalCostBeforeTaxCents = productCostCents + shippingCostCents;
+    const taxCents = totalCostBeforeTaxCents * 0.1;
+    const totalCostCents = totalCostBeforeTaxCents + taxCents;
 
     const newOrder = {
       id: crypto.randomUUID(),
       orderTimeMs: Date.now(),
-      totalCostCents: cart.reduce((acc, item) => acc + (item.product.priceCents * item.quantity), 0),
-      products: cart.map(item => ({
-        ...item,
-        estimatedDeliveryTimeMs: Date.now() + (3 * 24 * 60 * 60 * 1000)
-      }))
+      totalCostCents: totalCostCents,
+      products: cart.map(item => {
+        const option = deliveryOptions.find(o => o.id === item.deliveryOptionId);
+        const deliveryDays = option ? option.deliveryDays : 7;
+        return {
+          ...item,
+          estimatedDeliveryTimeMs: Date.now() + (deliveryDays * 24 * 60 * 60 * 1000)
+        };
+      })
     };
 
     orders.unshift(newOrder);
@@ -48,7 +62,7 @@ export const orderService = {
     return newOrder;
   },
 
-  getDeliveryOptions: async () => {
+  async getDeliveryOptions() {
     await sleep(100);
     return [
       {
@@ -69,18 +83,28 @@ export const orderService = {
     ];
   },
 
-  getPaymentSummary: async (cart) => {
+  async getPaymentSummary(cart) {
     await sleep(0);
 
-    const itemsPrice = cart.reduce((acc, item) => acc + (item.product.priceCents * item.quantity), 0);
-    const shippingPrice = 0;
-    const tax = itemsPrice * 0.1;
+    const deliveryOptions = await this.getDeliveryOptions();
+
+    const productCostCents = cart.reduce((acc, item) => acc + (item.product.priceCents * item.quantity), 0);
+    const shippingCostCents = cart.reduce((acc, item) => {
+      const option = deliveryOptions.find(o => o.id === item.deliveryOptionId);
+      return acc + (option ? option.priceCents : 0);
+    }, 0);
+    const totalCostBeforeTaxCents = productCostCents + shippingCostCents;
+    const taxCents = totalCostBeforeTaxCents * 0.1;
+    const totalCostCents = totalCostBeforeTaxCents + taxCents;
+    const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
 
     return {
-      itemsPriceCents: itemsPrice,
-      shippingPriceCents: shippingPrice,
-      taxCents: tax,
-      totalCents: itemsPrice + shippingPrice + tax
+      totalItems,
+      productCostCents,
+      shippingCostCents,
+      totalCostBeforeTaxCents,
+      taxCents,
+      totalCostCents
     };
   }
 };

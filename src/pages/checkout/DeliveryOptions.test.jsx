@@ -1,10 +1,11 @@
 import { it, expect, describe, vi, beforeEach } from 'vitest';
+import dayjs from 'dayjs';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import axios from 'axios';
 import { DeliveryOptions } from './DeliveryOptions';
+import { cartService } from '../../services/cartService';
 
-vi.mock('axios');
+vi.mock('../../services/cartService');
 
 describe('DeliveryOptions component', () => {
   let cartItem;
@@ -38,6 +39,7 @@ describe('DeliveryOptions component', () => {
 
     loadCart = vi.fn();
     user = userEvent.setup();
+    cartService.updateDeliveryOption.mockResolvedValue([]);
   });
 
   it('renders delivery options correctly', () => {
@@ -54,19 +56,19 @@ describe('DeliveryOptions component', () => {
     const deliveryOptionElems = screen.getAllByTestId('delivery-option');
     expect(deliveryOptionElems.length).toBe(3);
 
-    expect(deliveryOptionElems[0]).toHaveTextContent('Sunday, May 18');
+    expect(deliveryOptionElems[0]).toHaveTextContent(dayjs().add(7, 'days').format('dddd, MMMM D'));
     expect(deliveryOptionElems[0]).toHaveTextContent('FREE Shipping');
     expect(
       within(deliveryOptionElems[0]).getByTestId('delivery-option-input').checked
     ).toBe(false);
 
-    expect(deliveryOptionElems[1]).toHaveTextContent('Wednesday, May 14');
+    expect(deliveryOptionElems[1]).toHaveTextContent(dayjs().add(3, 'days').format('dddd, MMMM D'));
     expect(deliveryOptionElems[1]).toHaveTextContent('$4.99 - Shipping');
     expect(
       within(deliveryOptionElems[1]).getByTestId('delivery-option-input').checked
     ).toBe(true);
 
-    expect(deliveryOptionElems[2]).toHaveTextContent('Monday, May 12');
+    expect(deliveryOptionElems[2]).toHaveTextContent(dayjs().add(1, 'days').format('dddd, MMMM D'));
     expect(deliveryOptionElems[2]).toHaveTextContent('$9.99 - Shipping');
     expect(
       within(deliveryOptionElems[2]).getByTestId('delivery-option-input').checked
@@ -85,16 +87,16 @@ describe('DeliveryOptions component', () => {
     const deliveryOptionElems = screen.getAllByTestId('delivery-option');
 
     await user.click(deliveryOptionElems[2]);
-    expect(axios.put).toHaveBeenCalledWith(
-      '/api/cart-items/e43638ce-6aa0-4b85-b27f-e1d07eb678c6',
-      { deliveryOptionId: '3' }
+    expect(cartService.updateDeliveryOption).toHaveBeenCalledWith(
+      'e43638ce-6aa0-4b85-b27f-e1d07eb678c6',
+      '3'
     );
     expect(loadCart).toHaveBeenCalledTimes(1);
 
     await user.click(deliveryOptionElems[0]);
-    expect(axios.put).toHaveBeenCalledWith(
-      '/api/cart-items/e43638ce-6aa0-4b85-b27f-e1d07eb678c6',
-      { deliveryOptionId: '1' }
+    expect(cartService.updateDeliveryOption).toHaveBeenCalledWith(
+      'e43638ce-6aa0-4b85-b27f-e1d07eb678c6',
+      '1'
     );
     expect(loadCart).toHaveBeenCalledTimes(2);
   });

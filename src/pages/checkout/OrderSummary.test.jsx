@@ -2,10 +2,10 @@ import { it, expect, describe, vi, beforeEach } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import userEvent from '@testing-library/user-event';
-import axios from 'axios';
 import { OrderSummary } from './OrderSummary';
+import { cartService } from '../../services/cartService';
 
-vi.mock('axios');
+vi.mock('../../services/cartService');
 
 describe('OrderSummary component', () => {
   let cart;
@@ -65,6 +65,7 @@ describe('OrderSummary component', () => {
 
     loadCart = vi.fn();
     user = userEvent.setup();
+    cartService.removeFromCart.mockResolvedValue([]);
   });
 
   it('renders cart items correctly', () => {
@@ -135,16 +136,16 @@ describe('OrderSummary component', () => {
     await user.click(
       within(cartItemContainers[0]).getByTestId('cart-item-delete-quantity-link')
     );
-    expect(axios.delete).toHaveBeenCalledWith(
-      '/api/cart-items/e43638ce-6aa0-4b85-b27f-e1d07eb678c6'
+    expect(cartService.removeFromCart).toHaveBeenCalledWith(
+      'e43638ce-6aa0-4b85-b27f-e1d07eb678c6'
     );
     expect(loadCart).toHaveBeenCalledTimes(1);
 
     await user.click(
       within(cartItemContainers[1]).getByTestId('cart-item-delete-quantity-link')
     );
-    expect(axios.delete).toHaveBeenCalledWith(
-      '/api/cart-items/15b6fc6f-327a-4ec4-896f-486349e85a3d'
+    expect(cartService.removeFromCart).toHaveBeenCalledWith(
+      '15b6fc6f-327a-4ec4-896f-486349e85a3d'
     );
     expect(loadCart).toHaveBeenCalledTimes(2);
   });
