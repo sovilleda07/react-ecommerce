@@ -1,10 +1,10 @@
 import { it, expect, describe, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
-import axios from 'axios';
 import { Product } from './Product';
+import { cartService } from '../../services/cartService';
 
-vi.mock('axios');
+vi.mock('../../services/cartService');
 
 describe('Product component', () => {
   let product;
@@ -25,6 +25,7 @@ describe('Product component', () => {
     }
 
     loadCart = vi.fn();
+    cartService.addToCart.mockResolvedValue([]);
 
     user = userEvent.setup();
   });
@@ -46,7 +47,7 @@ describe('Product component', () => {
 
     expect(
       screen.getByTestId('product-rating-stars-image')
-    ).toHaveAttribute('src', 'images/ratings/rating-45.png');
+    ).toHaveAttribute('src', '/images/ratings/rating-45.png');
 
     expect(
       screen.getByText('87')
@@ -60,13 +61,7 @@ describe('Product component', () => {
 
     await user.click(addToCartButton);
 
-    expect(axios.post).toHaveBeenCalledWith(
-      '/api/cart-items',
-      {
-        productId: 'e43638ce-6aa0-4b85-b27f-e1d07eb678c6',
-        quantity: 1
-      }
-    );
+    expect(cartService.addToCart).toHaveBeenCalledWith(product, 1);
 
     expect(loadCart).toHaveBeenCalled();
   });
@@ -82,13 +77,7 @@ describe('Product component', () => {
     const addToCartButton = screen.getByTestId('add-to-cart-button');
     await user.click(addToCartButton);
 
-    expect(axios.post).toHaveBeenCalledWith(
-      '/api/cart-items',
-      {
-        productId: 'e43638ce-6aa0-4b85-b27f-e1d07eb678c6',
-        quantity: 3
-      }
-    );
+    expect(cartService.addToCart).toHaveBeenCalledWith(product, 3);
 
     expect(loadCart).toHaveBeenCalled();
   });

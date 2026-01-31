@@ -5,7 +5,7 @@ const mapProduct = (fakeProduct) => ({
   image: fakeProduct.image,
   name: fakeProduct.title,
   rating: {
-    stars: fakeProduct.rating?.rate || 0,
+    stars: Math.round((fakeProduct.rating?.rate || 0) * 2) / 2,
     count: fakeProduct.rating?.count || 0
   },
   priceCents: Math.round(fakeProduct.price * 100),
