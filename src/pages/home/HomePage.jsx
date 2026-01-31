@@ -1,8 +1,8 @@
-import axios from 'axios';
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router';
 import { Header } from '../../components/Header';
 import { ProductsGrid } from './ProductsGrid';
+import { productService } from '../../services/productService';
 import './HomePage.css';
 
 export function HomePage({ cart, loadCart }) {
@@ -13,11 +13,18 @@ export function HomePage({ cart, loadCart }) {
 
   useEffect(() => {
     const getHomeData = async () => {
-      const urlPath = search ? `/api/products?search=${search}` : '/api/products';
-
-      const response = await axios.get(urlPath);
-      setProducts(response.data);
-    }
+      const allProducts = await productService.getProducts();
+      
+      if (search) {
+         setProducts(allProducts.filter(p => {
+           const lowerSearch = search.toLowerCase();
+           return p.name.toLowerCase().includes(lowerSearch) || 
+                  p.keywords.some(k => k.toLowerCase().includes(lowerSearch));
+         }));
+      } else {
+         setProducts(allProducts);
+      }
+    };
 
     getHomeData();
   }, [search]);
@@ -33,5 +40,5 @@ export function HomePage({ cart, loadCart }) {
         <ProductsGrid products={products} loadCart={loadCart} />
       </div>
     </>
-  )
+  );
 }
