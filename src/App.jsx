@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { useState, useEffect } from 'react';
 import { Routes, Route } from 'react-router';
 import { HomePage } from './pages/home/HomePage';
@@ -6,14 +5,15 @@ import { CheckoutPage } from './pages/checkout/CheckoutPage';
 import { OrdersPage } from './pages/orders/OrdersPage';
 import { TrackingPage } from './pages/TrackingPage';
 import { NotFoundPage } from './pages/NotFoundPage';
+import { cartService } from './services/cartService';
 import './App.css'
 
 function App() {
   const [cart, setCart] = useState([]);
 
   const loadCart = async () => {
-    const response = await axios.get('/api/cart-items?expand=product');
-    setCart(response.data);
+    const cartData = await cartService.getCart();
+    setCart(cartData);
   }
 
   useEffect(() => {

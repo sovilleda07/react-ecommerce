@@ -2,10 +2,12 @@ import { it, expect, describe, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, useLocation } from 'react-router';
-import axios from 'axios';
 import { PaymentSummary } from './PaymentSummary';
+import { orderService } from '../../services/orderService';
+import { cartService } from '../../services/cartService';
 
-vi.mock('axios');
+vi.mock('../../services/orderService');
+vi.mock('../../services/cartService');
 
 describe('PaymentSummary component', () => {
   let paymentSummary;
@@ -24,12 +26,13 @@ describe('PaymentSummary component', () => {
 
     loadCart = vi.fn();
     user = userEvent.setup();
+    orderService.placeOrder.mockResolvedValue({});
   });
 
   it('displays the correct details', () => {
     render(
       <MemoryRouter>
-        <PaymentSummary paymentSummary={paymentSummary} loadCart={loadCart} />
+        <PaymentSummary paymentSummary={paymentSummary} loadCart={loadCart} cart={[]} />
       </MemoryRouter>
     );
 
@@ -62,9 +65,11 @@ describe('PaymentSummary component', () => {
       return <div data-testid="url-path">{location.pathname}</div>;
     }
 
+    const cart = []; 
+
     render(
       <MemoryRouter>
-        <PaymentSummary paymentSummary={paymentSummary} loadCart={loadCart} />
+        <PaymentSummary paymentSummary={paymentSummary} loadCart={loadCart} cart={cart} />
         <Location />
       </MemoryRouter>
     );
@@ -72,7 +77,8 @@ describe('PaymentSummary component', () => {
     const placeOrderButton = screen.getByTestId('place-order-button');
     await user.click(placeOrderButton);
 
-    expect(axios.post).toHaveBeenCalledWith('/api/orders');
+    expect(orderService.placeOrder).toHaveBeenCalledWith(cart);
+    expect(cartService.clearCart).toHaveBeenCalled();
     expect(loadCart).toHaveBeenCalled();
     expect(screen.getByTestId('url-path')).toHaveTextContent('/orders');
   });

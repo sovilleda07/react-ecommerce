@@ -1,10 +1,10 @@
 import { it, expect, describe, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
-import axios from 'axios';
 import { CheckoutPage } from './CheckoutPage';
+import { orderService } from '../../services/orderService';
 
-vi.mock('axios');
+vi.mock('../../services/orderService');
 
 describe('CheckoutPage component', () => {
   let loadCart;
@@ -73,14 +73,8 @@ describe('CheckoutPage component', () => {
       totalCostCents: 5251
     };
 
-    axios.get.mockImplementation(async (url) => {
-      if (url === '/api/delivery-options?expand=estimatedDeliveryTime') {
-        return { data: deliveryOptions };
-      }
-      if (url === '/api/payment-summary') {
-        return { data: paymentSummary };
-      }
-    });
+    orderService.getDeliveryOptions.mockResolvedValue(deliveryOptions);
+    orderService.getPaymentSummary.mockResolvedValue(paymentSummary);
   });
 
   it('displays the page correctly', async () => {
@@ -90,16 +84,10 @@ describe('CheckoutPage component', () => {
       </MemoryRouter>
     );
 
-    const paymentSummary = await screen.findByTestId('payment-summary-product-cost');
+    const paymentSummaryElem = await screen.findByTestId('payment-summary-product-cost');
 
-    expect(axios.get).toHaveBeenNthCalledWith(
-      1,
-      '/api/delivery-options?expand=estimatedDeliveryTime'
-    );
-    expect(axios.get).toHaveBeenNthCalledWith(
-      2,
-      '/api/payment-summary'
-    );
+    expect(orderService.getDeliveryOptions).toHaveBeenCalled();
+    expect(orderService.getPaymentSummary).toHaveBeenCalledWith(cart);
 
     expect(screen.getByText('Review your order')).toBeInTheDocument();
     expect(
@@ -109,7 +97,7 @@ describe('CheckoutPage component', () => {
       screen.getByText('Intermediate Size Basketball')
     ).toBeInTheDocument();
 
-    expect(paymentSummary).toBeInTheDocument();
+    expect(paymentSummaryElem).toBeInTheDocument();
     expect(screen.getByText('Payment Summary')).toBeInTheDocument();
     expect(screen.getByTestId('payment-summary-product-cost'))
       .toHaveTextContent('Items (3):');

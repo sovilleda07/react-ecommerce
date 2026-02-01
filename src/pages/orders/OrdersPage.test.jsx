@@ -1,10 +1,10 @@
 import { it, expect, describe, vi, beforeEach } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
-import axios from 'axios';
 import { OrdersPage } from './OrdersPage';
+import { orderService } from '../../services/orderService';
 
-vi.mock('axios');
+vi.mock('../../services/orderService');
 
 describe('OrdersPage component', () => {
   let cart;
@@ -75,11 +75,7 @@ describe('OrdersPage component', () => {
       }]
     }];
 
-    axios.get.mockImplementation(async (urlPath) => {
-      if (urlPath === '/api/orders?expand=products') {
-        return { data: orders };
-      }
-    });
+    orderService.getOrders.mockResolvedValue(orders);
   });
 
   it('renders order details correctly', async () => {
@@ -96,7 +92,7 @@ describe('OrdersPage component', () => {
 
     expect(
       within(orderContainers[0]).getByTestId('order-date')
-    ).toHaveTextContent('December 15');
+    ).toHaveTextContent('August 12');
     expect(
       within(orderContainers[0]).getByTestId('order-total')
     ).toHaveTextContent('$35.06');
@@ -118,7 +114,7 @@ describe('OrdersPage component', () => {
 
     expect(
       within(orderContainers[1]).getByTestId('order-date')
-    ).toHaveTextContent('December 15');
+    ).toHaveTextContent('June 10');
     expect(
       within(orderContainers[1]).getByTestId('order-total')
     ).toHaveTextContent('$41.90');

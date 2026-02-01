@@ -1,4 +1,4 @@
-import axios from "axios";
+import { cartService } from "../../services/cartService";
 import dayjs from "dayjs";
 import { formatMoney } from "../../utils/money";
 
@@ -16,9 +16,7 @@ export function DeliveryOptions({ deliveryOptions, cartItem, loadCart }) {
         }
 
         const updateDeliveryOption = async () => {
-          await axios.put(`/api/cart-items/${cartItem.productId}`, {
-            deliveryOptionId: deliveryOption.id
-          });
+          await cartService.updateDeliveryOption(cartItem.productId, deliveryOption.id);
 
           await loadCart();
         }
@@ -33,7 +31,7 @@ export function DeliveryOptions({ deliveryOptions, cartItem, loadCart }) {
               data-testid="delivery-option-input" />
             <div>
               <div className="delivery-option-date">
-                {dayjs(deliveryOption.estimatedDeliveryTimeMs).format('dddd, MMMM D')}
+                {dayjs().add(deliveryOption.deliveryDays, 'days').format('dddd, MMMM D')}
               </div>
               <div className="delivery-option-price">
                 {priceString}

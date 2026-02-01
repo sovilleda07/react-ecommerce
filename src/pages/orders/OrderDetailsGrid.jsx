@@ -1,4 +1,4 @@
-import axios from "axios";
+import { cartService } from "../../services/cartService";
 import dayjs from "dayjs";
 import { Fragment } from "react";
 import { Link } from "react-router";
@@ -9,10 +9,7 @@ export function OrderDetailsGrid({ order, loadCart }) {
     <div className="order-details-grid">
       {order.products.map((orderProduct) => {
         const addToCart = async () => {
-          await axios.post('/api/cart-items', {
-            productId: orderProduct.product.id,
-            quantity: 1
-          });
+          await cartService.addToCart(orderProduct.product, 1);
           await loadCart();
         };
 
